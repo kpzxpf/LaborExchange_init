@@ -7,8 +7,8 @@ services:
     container_name: kafka
     hostname: kafka
     ports:
-      - "9092:9092"     # Для приложений с localhost
-      - "29092:29092"   # Для других контейнеров (Docker network)
+      - "9092:9092"
+      - "29092:29092"
     environment:
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
       KAFKA_NODE_ID: 1
@@ -67,32 +67,52 @@ services:
       POSTGRES_PASSWORD: userpass
     restart: always
 
-  postgres-job:
+  postgres-vacancy:
     image: postgres:16
-    container_name: postgres-job
+    container_name: postgres-vacancy
     ports:
       - "5435:5432"
     environment:
-      POSTGRES_DB: jobdb
-      POSTGRES_USER: jobuser
-      POSTGRES_PASSWORD: jobpass
+      POSTGRES_DB: vacancydb
+      POSTGRES_USER: vacancyuser
+      POSTGRES_PASSWORD: vacancypass
+    restart: always
+
+  postgres-resume:
+    image: postgres:16
+    container_name: postgres-resume
+    ports:
+      - "5436:5432"
+    environment:
+      POSTGRES_DB: resumedb
+      POSTGRES_USER: resumeuser
+      POSTGRES_PASSWORD: resumepass
     restart: always
 
   postgres-application:
     image: postgres:16
     container_name: postgres-application
     ports:
-      - "5436:5432"
+      - "5437:5432"
     environment:
-      POSTGRES_DB: appdb
-      POSTGRES_USER: appuser
-      POSTGRES_PASSWORD: apppass
+      POSTGRES_DB: applicationdb
+      POSTGRES_USER: applicationuser
+      POSTGRES_PASSWORD: applicationpass
     restart: always
 
-  # ===================== MONGO =====================
-  mongo-notification:
-    image: mongo:7
-    container_name: mongo-notification
+  loki:
+    image: grafana/loki:2.9.0
     ports:
-      - "27017:27017"
-    restart: always
+      - "3100:3100"
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml:ro
+    command: -config.file=/etc/loki/local-config.yaml
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+       - "3001:3000"
+    environment:
+       - GDS_INSTALL_PLUGINS=grafana-loki-datasource
+    depends_on:
+       - loki
