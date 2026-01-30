@@ -116,3 +116,20 @@ services:
        - GDS_INSTALL_PLUGINS=grafana-loki-datasource
     depends_on:
        - loki
+
+  redis:
+    image: redis:7-alpine
+    container_name: job-redis
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server 
+      --maxmemory 512mb 
+      --maxmemory-policy allkeys-lru
+    networks:
+      - job-network
+    restart: always
+
+networks:
+  job-network:
+    driver: bridge
