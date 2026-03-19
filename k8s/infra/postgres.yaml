@@ -1,0 +1,359 @@
+# ============ USER DB ============
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-user
+  namespace: laborexchange
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-user
+  template:
+    metadata:
+      labels:
+        app: postgres-user
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: userdb
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: user-username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: user-password
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: postgres-user-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-user-data
+          persistentVolumeClaim:
+            claimName: postgres-user-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-user
+  namespace: laborexchange
+spec:
+  selector:
+    app: postgres-user
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-user-pvc
+  namespace: laborexchange
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 5Gi
+---
+# ============ VACANCY DB ============
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-vacancy
+  namespace: laborexchange
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-vacancy
+  template:
+    metadata:
+      labels:
+        app: postgres-vacancy
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: vacancydb
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: vacancy-username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: vacancy-password
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: postgres-vacancy-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-vacancy-data
+          persistentVolumeClaim:
+            claimName: postgres-vacancy-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-vacancy
+  namespace: laborexchange
+spec:
+  selector:
+    app: postgres-vacancy
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-vacancy-pvc
+  namespace: laborexchange
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 5Gi
+---
+# ============ RESUME DB ============
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-resume
+  namespace: laborexchange
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-resume
+  template:
+    metadata:
+      labels:
+        app: postgres-resume
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: resumedb
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: resume-username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: resume-password
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: postgres-resume-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-resume-data
+          persistentVolumeClaim:
+            claimName: postgres-resume-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-resume
+  namespace: laborexchange
+spec:
+  selector:
+    app: postgres-resume
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-resume-pvc
+  namespace: laborexchange
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 5Gi
+---
+# ============ APPLICATION DB ============
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-application
+  namespace: laborexchange
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-application
+  template:
+    metadata:
+      labels:
+        app: postgres-application
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: applicationdb
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: application-username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: application-password
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: postgres-application-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-application-data
+          persistentVolumeClaim:
+            claimName: postgres-application-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-application
+  namespace: laborexchange
+spec:
+  selector:
+    app: postgres-application
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-application-pvc
+  namespace: laborexchange
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 5Gi
+---
+# ============ SKILL DB ============
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-skill
+  namespace: laborexchange
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-skill
+  template:
+    metadata:
+      labels:
+        app: postgres-skill
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: skilldb
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: skill-username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: skill-password
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: postgres-skill-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: postgres-skill-data
+          persistentVolumeClaim:
+            claimName: postgres-skill-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-skill
+  namespace: laborexchange
+spec:
+  selector:
+    app: postgres-skill
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-skill-pvc
+  namespace: laborexchange
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 2Gi
