@@ -130,6 +130,28 @@ services:
       POSTGRES_PASSWORD: skillpass
     restart: always
 
+  postgres-statistics:
+    image: postgres:16
+    container_name: postgres-statistics
+    ports:
+      - "5439:5432"
+    environment:
+      POSTGRES_DB: statisticsdb
+      POSTGRES_USER: statsuser
+      POSTGRES_PASSWORD: statspass
+    restart: always
+
+  postgres-chat:
+    image: postgres:16
+    container_name: postgres-chat
+    ports:
+      - "5440:5432"
+    environment:
+      POSTGRES_DB: chatdb
+      POSTGRES_USER: chatuser
+      POSTGRES_PASSWORD: chatpass
+    restart: always
+
   loki:
     image: grafana/loki:2.9.0
     ports:
@@ -176,5 +198,39 @@ services:
       - '--storage.tsdb.retention.time=15d'
     restart: always
 
+  # ===================== ZIPKIN =====================
+  zipkin:
+    image: openzipkin/zipkin:latest
+    container_name: zipkin
+    ports:
+      - "9411:9411"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:9411/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ===================== ALERT SERVICE DB =====================
+  postgres-alert:
+    image: postgres:16
+    container_name: postgres-alert
+    environment:
+      POSTGRES_DB: alertdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5441:5432"
+    volumes:
+      - postgres-alert-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d alertdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
 volumes:
   redis-data:
+  postgres-alert-data:
