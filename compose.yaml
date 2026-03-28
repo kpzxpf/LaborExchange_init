@@ -211,6 +211,25 @@ services:
       timeout: 10s
       retries: 3
 
+  # ===================== NOTIFICATION SERVICE DB =====================
+  postgres-notification:
+    image: postgres:16
+    container_name: postgres-notification
+    environment:
+      POSTGRES_DB: notificationdb
+      POSTGRES_USER: notifuser
+      POSTGRES_PASSWORD: notifpass
+    ports:
+      - "5442:5432"
+    volumes:
+      - postgres-notification-data:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U notifuser -d notificationdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   # ===================== ALERT SERVICE DB =====================
   postgres-alert:
     image: postgres:16
@@ -233,4 +252,5 @@ services:
 
 volumes:
   redis-data:
+  postgres-notification-data:
   postgres-alert-data:
